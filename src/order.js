@@ -131,11 +131,6 @@ Airbrite = (function(module) {
       // This is a change triggered by a save, ignore
       return;
     }
-
-    // TODO: Don't save if we don't have enough data to make it
-    // worth it yet
-    // Save the order to the server
-    this.save();
   }
 
   return module;
