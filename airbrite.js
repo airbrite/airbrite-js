@@ -353,6 +353,21 @@ Airbrite = (function(module) {
     },
 
     /**
+     * Helper method for setting a customer
+     */
+    setCustomer: function(customer) {
+      this.set('customer', customer);
+    },
+
+    /**
+     * Helper method for setting a shipping address
+     */
+    
+    setShippingAddress: function(address) {
+      this.set('shipping_address', address);
+    },
+
+    /**
      * High-level API for adding a payment
      */
     addPayment: function(params) {

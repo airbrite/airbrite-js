@@ -40,7 +40,7 @@ Add line items to the order:
 Add customer information:
 
 ```
-    myOrder.set({ customer: {
+    myOrder.setCustomer({
       'name': 'Jack Daniels',
       'email': 'jack@daniels.ru'
     });
@@ -49,7 +49,7 @@ Add customer information:
 Add shipping address
 
 ```
-    myOrder.set({ shipping_address: {
+    myOrder.setShippingAddress({
         "name": "Jack Daniels",
         "phone": "4151234567",
         "line1": "123 Main St",
@@ -58,7 +58,7 @@ Add shipping address
         "state": "CA",
         "zip": "94105",
         "country": "US"
-    }});
+    });
 ```
 
 Add payment information. If you configured a supported payment gateway
