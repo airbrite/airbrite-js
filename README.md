@@ -26,22 +26,29 @@ Airbrite.js will handle tokenizing of the payment information for you:
 
 Start by creating a new instance of the Airbrite.Order object
 
+```
     var myOrder = new Airbrite.Order();
+```
 
 Add line items to the order:
 
+```
     myOrder.addItem({ sku: '551019015', quantity: 3 });
     myOrder.addItem('551019017');
+```
 
 Add customer information:
 
+```
     myOrder.set({ customer: {
       'name': 'Jack Daniels',
       'email': 'jack@daniels.ru'
     });
+```
 
 Add shipping address
 
+```
     myOrder.set({ shipping_address: {
         "name": "Jack Daniels",
         "phone": "4151234567",
@@ -52,29 +59,36 @@ Add shipping address
         "zip": "94105",
         "country": "US"
     }});
+```
 
 Add payment information. If you configured a supported payment gateway
 with Airbrite.setPaymentToken, Airbrite.js will perform tokenization
 under the covers for you:
 
+```
     myOrder.addPayment({
       number: ‘4242424242424242’,
       cvc: ‘892’,
       exp_month: ‘11’,
       exp_year: ‘16’
     });
+```
 
 You will know that tokenization is ready by listening to the 'complete'
 event:
 
+```
     myOrder.on('complete', function() {
       console.log('payment token ready: ' +
         myOrder.get('payments[0].card_token'));
     });
+```
 
 Finally, you submit the order simply by saving it into our backend:
 
+```
     myOrder.save();
+```
 
 ## Retrieving product information
 
