@@ -195,17 +195,24 @@ _.extend(Backbone.Model.prototype, {
 });
 
 /**
- * Core component. 
+ * Core component
  * SDK configuration, common functions, etc.
  */
 Airbrite = (function(){
   var module = {};
 
-  // Secret or public/publishable key
+  // Publishable key
   var _key;
 
   // Airbrite API endpoint
   var _baseUrl = 'https://api.airbrite.io/v2';
+
+  // Keeps track of whether a client-side payment gateway has been successfully configured
+  _paymentGateway = undefined;
+
+  module._getPaymentGateway = function() {
+    return _paymentGateway;
+  };
 
   module._syncWithKey = function(method, model, options) {
     options.beforeSend = function(xhr) {
@@ -224,7 +231,17 @@ Airbrite = (function(){
 
   module.setPaymentToken = function(paymentToken) {
     if('stripe' in paymentToken) {
-      Stripe.setPublishableKey(paymentToken.stripe.publishableKey);
+      _loadLibrary({
+        moduleVar: 'Stripe',
+        versionTestFunc: function(stripe) {
+          return stripe.version == 2;
+        },
+        moduleUrl: "https://js.stripe.com/v2/",
+        callback: function() {
+          _paymentGateway = 'stripe';
+          Stripe.setPublishableKey(paymentToken.stripe.publishableKey);
+        }
+      });
     } else {
       throw new Error('Please provide a supported gateway configuration.'
                      +' Currently supported payment gateways: stripe');
@@ -233,6 +250,65 @@ Airbrite = (function(){
 
   module._getBaseUrl = function() {
     return _baseUrl;
+  };
+
+  /**
+   * Helper method to check for required params for specific methods
+   */
+  module._checkParams = function(requiredParams, providedParams, errorFunc) {
+    // Default parameters
+    errorFunc = errorFunc || function(mp) {
+      throw Error('Missing parameters: ' + mp.join(', '));
+    };
+    providedParams = providedParams || {};
+    if(typeof(providedParams) != 'object') {
+      // Hmm ... not sure how to produce a user-friendly error when the params
+      // provided are not the required form. For now, this will produce the default
+      // arguments missing error message
+      providedParams = {};
+    }
+
+    var missingParams = [];
+    requiredParams.forEach(function(requiredParam) {
+      if(!(requiredParam in providedParams)) {
+        missingParams.push(requiredParam);
+      }
+    });
+    if(missingParams.length > 0) {
+      errorFunc(missingParams);
+    }
+  };
+
+  /**
+   * Checks for and loads if necessary a library we want to use
+   * NOTE: This is only useful for runtime-dependencies and it can't deal very well
+   * with collisions with different versions of libraries
+   */
+  _loadLibrary = function(options) {
+    if(!window.console || !window.console.log) { var console = {}; console.log = function() {}; }
+
+    /******** Load jQuery if not present *********/
+    if (window[options.moduleVar] === undefined || !options.versionTestFunc(window[options.moduleVar])) {
+        var script_tag = document.createElement('script');
+        script_tag.setAttribute("type","text/javascript");
+        script_tag.setAttribute("src", options.moduleUrl);
+
+        if (script_tag.readyState) {
+          script_tag.onreadystatechange = function () { // For old versions of IE
+              if (this.readyState == 'complete' || this.readyState == 'loaded') {
+                  options.callback();
+              }
+          };
+        } else { // Other browsers
+          script_tag.onload = options.callback;
+        }
+        // Try to find the head, otherwise default to the documentElement
+        (document.getElementsByTagName("head")[0] || document.documentElement).appendChild(script_tag);
+    } else {
+
+        // Add initialize call here
+        options.callback();
+    }
   };
 
   return module;
@@ -275,20 +351,12 @@ Airbrite = (function(module) {
       line_items: [],
       payments: []
     },
-
-    /**
-     * Returns a list of Airbite.Product
-     * which are currently in the cart
-     * TODO: Can't do this without an endpoint that allows fetching Product
-     * by sku instead of product_id
-     */
-    getItemProducts: function() {
-      return this.get('line_items').map(function(line_item) {
-        var product = new Airbrite.Product({ sku: line_item.sku});
-        product.fetch();
-        return product;
-      });
+    validate: function(attrs, options) {
+      if(!attrs.line_items || !attrs.line_items.length) {
+        return "Order has no items. Use 'addItem' function to add items to your order";
+      }
     },
+
     /**
      * Adds a product to the Order. If a product
      * is already in the order, it adds the requested quantity
@@ -325,6 +393,7 @@ Airbrite = (function(module) {
       // changing the array reference
       this.trigger('change');
     },
+
     /**
      * Removes all the products of this type from the order
      * Returns 'true' iff the item was successfully found and removed
@@ -345,55 +414,72 @@ Airbrite = (function(module) {
     },
 
     /**
-     * Calculates the total amount based on adding up the price for all items
-     * in the order
+     * Helper getter for line item information
      */
-    getItemsSubtotal: function() {
-      var priceSum = this.get('line_items').reduce(function(total, item) {
-        return total + (item.price * item.quantity);
-      }, 0);
-      return priceSum / 100.0;
+    getItems: function() {
+      return this.get('line_items');
     },
 
     /**
      * High-level API for adding a payment
      */
     addPayment: function(params) {
+      params = params || {};
+      module._checkParams(['number','exp_month','exp_year','amount','currency'], params);
       var payments = this.get('payments');
       var payment = {
-        gateway: 'stripe',
         amount: params.amount,
         currency: params.currency
       };
       payments.push(payment);
-      var _this = this;
-      Stripe.createToken(params, function(status, response) {
-        if(response.error) {
-          // TODO: Handle errors
-          console.log('error tokenizing card: ' + response.error.message);
-        } else {
-          payment.card_token = response.id;
-          _this.trigger('change');
-          _this.trigger('complete');
-        }
-      });
+
+      if(module._getPaymentGateway() == 'stripe') {
+        var _this = this;
+        Stripe.createToken(params, function(status, response) {
+          if(response.error) {
+            _this.trigger('error', _this, 'Error tokenizing card: ' + response.error.message, params);
+          } else {
+            payment.card_token = response.id;
+            _this.trigger('change');
+            _this.trigger('complete');
+          }
+        });
+      } else {
+        // No automatic client-side tokenizing
+      }
     },
 
-    constructor: function() {
-      this.on('change', onOrderChanged, this);
-      Backbone.Model.apply(this, arguments);
+    /**
+     * Helper method for setting a customer
+     */
+    setCustomer: function(customer) {
+      this.set('customer', customer);
+    },
+
+    /**
+     * Helper method for setting a shipping address
+     */
+    setShippingAddress: function(address) {
+      this.set('shipping_address', address);
+    },
+
+    /**
+     * Helper method, equivalent to save but maybe more intuitive for
+     * SDK users
+     */
+    submit: function() {
+      return this.save({});
+    },
+
+    // Workaround to prevent sending to server when validation fails
+    // even if the user doesn't provide a parameter object as argument
+    save: function() {
+      if(arguments.length == 0) {
+        arguments = [{}];
+      }
+      return Backbone.Model.prototype.save.apply(this, arguments);
     }
   });
-
-  // Automatically perform some functions as the object is constructed
-  // thus enabling more functionality for the user
-  function onOrderChanged() {
-    var changedValues = this.changedAttributes();
-    if(changedValues && 'updated' in changedValues) {
-      // This is a change triggered by a save, ignore
-      return;
-    }
-  }
 
   return module;
 })(Airbrite);
