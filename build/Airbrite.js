@@ -193,6 +193,7 @@ _.extend(Backbone.Model.prototype, {
     return this;
   }
 });
+
 /**
  * Core component. 
  * SDK configuration, common functions, etc.
@@ -236,6 +237,7 @@ Airbrite = (function(){
 
   return module;
 })();
+
 /**
  * Airbrite.Product
  */
@@ -257,6 +259,7 @@ Airbrite = (function(module) {
 
   return module;
 })(Airbrite);
+
 /**
  * Implements Airbrite.Order
  */
@@ -350,21 +353,6 @@ Airbrite = (function(module) {
         return total + (item.price * item.quantity);
       }, 0);
       return priceSum / 100.0;
-    },
-
-    /**
-     * Helper method for setting a customer
-     */
-    setCustomer: function(customer) {
-      this.set('customer', customer);
-    },
-
-    /**
-     * Helper method for setting a shipping address
-     */
-    
-    setShippingAddress: function(address) {
-      this.set('shipping_address', address);
     },
 
     /**
