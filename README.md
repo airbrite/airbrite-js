@@ -92,9 +92,34 @@ Finally, you submit the order simply by saving it into our backend:
 
 ## Retrieving product information
 
-Airbrite.js is based on Backbone.js Models and Collections
-
 You can retrieve a list of products from your catalog:
 
+```
     var myProducts = Airbrite.Products();
     myProducts.fetch();
+```
+
+## Events
+
+Following Backbone convention, Airbrite.js models trigger events to
+signal different circumsntances you want to be aware about, such as:
+
+ - Error handling:
+
+```
+    myOrder.on('error', function(model, xhr_or_error, options) {
+      // Deal with the error
+    });
+```
+
+ - Model updates:
+
+```
+    myProduct.on('change', function(model, options) {
+      // Refresh UI to new product property value
+    });
+```
+
+We encourage you to check the [Backbone.js Catalog of Built-in
+Events](http://backbonejs.org/#Events-catalog) for additional
+documentation
