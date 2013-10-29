@@ -433,6 +433,8 @@ Airbrite = (function(module) {
       };
       payments.push(payment);
 
+      // If the user has configured Stripe payment gateway through Airbrite.setPaymentToken,
+      // load the Stripe library and tokenize the card automatically for her
       if(module._getPaymentGateway() == 'stripe') {
         var _this = this;
         Stripe.createToken(params, function(status, response) {
@@ -445,7 +447,8 @@ Airbrite = (function(module) {
           }
         });
       } else {
-        // No automatic client-side tokenizing
+        // If no gateway token has been confiured ... what to do? For now, just saving the card
+        // information in the order as is
       }
     },
 

@@ -47,8 +47,8 @@ Airbrite = (function(){
         }
       });
     } else {
-      throw new Error('Please provide a supported gateway configuration.'
-                     +' Currently supported payment gateways: stripe');
+      throw new Error('Please provide a supported gateway configuration.'+
+                     ' Currently supported payment gateways: stripe');
     }
   };
 
