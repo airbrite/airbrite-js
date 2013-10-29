@@ -139,10 +139,11 @@ Airbrite = (function(module) {
     // Workaround to prevent sending to server when validation fails
     // even if the user doesn't provide a parameter object as argument
     save: function() {
-      if(arguments.length == 0) {
-        arguments = [{}];
+      var args = arguments;
+      if(args.length === 0) {
+        args = [{}];
       }
-      return Backbone.Model.prototype.save.apply(this, arguments);
+      return Backbone.Model.prototype.save.apply(this, args);
     }
   });
 
