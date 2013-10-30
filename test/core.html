@@ -9,8 +9,12 @@
   <script src="../node_modules/mocha/mocha.js"></script>
   <script src="../node_modules/chai/chai.js"></script>
   <script>mocha.setup('bdd')</script>
+
+  <!-- Import source code to be tested -->
   <script src="../src/core.js"></script>
+  <!-- Import test case code -->
   <script src="core.js"></script>
+
   <script>
     // This allows running both in a browser or through Grunt.
     //  Run mocha only if not running in PhantomJS - grunt-mocha will use PhantomJS
