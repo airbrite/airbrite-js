@@ -151,8 +151,7 @@ _.extend(Backbone.Model.prototype, {
       this.changed = {};
     }
 
-    current = this.attributes;
-    prev = this._previousAttributes;
+    current = this.attributes, prev = this._previousAttributes;
 
     // Check for changes of `id`.
     if (this.idAttribute in attrs) this.id = attrs[this.idAttribute];
