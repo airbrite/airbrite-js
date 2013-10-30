@@ -7,13 +7,19 @@
 <body>
   <div id="mocha"></div>
   <script src="../node_modules/mocha/mocha.js"></script>
+  <script src="../node_modules/chai/chai.js"></script>
   <script>mocha.setup('bdd')</script>
   <script src="../src/core.js"></script>
   <script src="core.js"></script>
   <script>
-    mocha.checkLeaks();
-    // mocha.globals(['jQuery']);
-    mocha.run();
+    // This allows running both in a browser or through Grunt.
+    //  Run mocha only if not running in PhantomJS - grunt-mocha will use PhantomJS
+    //  and start mocha automatically
+    if(navigator && navigator.userAgent && navigator.userAgent.indexOf('PhantomJS') == -1) {
+      mocha.checkLeaks();
+      mocha.globals(['jQuery']);
+      mocha.run();
+    }
   </script>
 </body>
 </html>

@@ -5,6 +5,16 @@ module.exports = function(grunt) {
     jshint: {
       files: ['src/*.js']
     },
+    mocha: {
+      tests: {
+        src: ['test/**/*.html'],
+        options: {
+          run: true,
+          reporter: 'Nyan',
+          timeout: 10000
+        }
+      }
+    },
     concat: {
       dist: {
         src: [
@@ -32,7 +42,9 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-mocha');
 
   // Default task(s).
-  grunt.registerTask('default', ['jshint','concat','uglify']);
+  grunt.registerTask('default', ['jshint','mocha','concat','uglify']);
+  grunt.registerTask('test', ['mocha']);
 };
