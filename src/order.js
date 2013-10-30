@@ -144,8 +144,18 @@ Airbrite = (function(module) {
      * Helper method, equivalent to save but maybe more intuitive for
      * SDK users
      */
-    submit: function() {
-      return this.save({});
+    submit: function(callback) {
+      var options = {};
+      if($.isFunction(callback)) {
+        options.success = function(model, response, options) {
+          callback('success');
+        };
+        options.error = function(model, xhr, options) {
+          // TODO: Be more specific about the error occurred
+          callback('error', 'Error submitting order');
+        };
+      }
+      return this.save({}, options);
     },
 
     // Workaround to prevent sending to server when validation fails
