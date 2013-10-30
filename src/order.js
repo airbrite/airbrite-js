@@ -85,7 +85,7 @@ Airbrite = (function(module) {
     /**
      * High-level API for adding a payment
      */
-    addPayment: function(params) {
+    addPayment: function(params, callback) {
       params = params || {};
       module._checkParams(['number','exp_month','exp_year','amount','currency'], params);
       var payments = this.get('payments');
@@ -97,20 +97,32 @@ Airbrite = (function(module) {
 
       // If the user has configured Stripe payment gateway through Airbrite.setPaymentToken,
       // load the Stripe library and tokenize the card automatically for her
+      var _this = this;
       if(module._getPaymentGateway() == 'stripe') {
-        var _this = this;
         Stripe.createToken(params, function(status, response) {
           if(response.error) {
-            _this.trigger('error', _this, 'Error tokenizing card: ' + response.error.message, params);
+            var msg =  'Error tokenizing card: ' + response.error.message;
+            _this.trigger('error', _this, msg, params);
+            if($.isFunction(callback)) {
+              callback('error', msg);
+            }
           } else {
             payment.card_token = response.id;
             _this.trigger('change');
             _this.trigger('complete');
+            if($.isFunction(callback)) {
+              callback('success');
+            }
           }
         });
       } else {
-        // If no gateway token has been confiured ... what to do? For now, just saving the card
-        // information in the order as is
+        // If no gateway token has been confiured ... what to do? For now
+        // generate an error message indicating the missing configuration
+        var msg = 'No payment gateway configured. Use: Airbrite.setPaymentToken()';
+        if($.isFunction(callback)) {
+          _this.trigger('error', _this, msg);
+          callback('error', msg);
+        }
       }
     },
 
