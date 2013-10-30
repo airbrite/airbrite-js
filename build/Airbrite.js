@@ -14,14 +14,15 @@ _.extend(_, {
       }
       var val = obj[key];
 
+      var obj2;
       if(!_.isEmpty(val) && _.isArray(val)) {
         //Recursion for embedded objects
-        var obj2 = _.flattenObject(val);
+        obj2 = _.flattenObject(val);
 
         ret[key] = obj2;
       } else if (!_.isEmpty(val) && _.get(val, "constructor") === Object) {
         //Recursion for embedded objects
-        var obj2 = _.flattenObject(val);
+        obj2 = _.flattenObject(val);
 
         for (var key2 in obj2) {
           var val2 = obj2[key2];
@@ -123,7 +124,7 @@ _.extend(Backbone.Model.prototype, {
   },
   set: function(key, val, options) {
     var attr, attrs, unset, changes, silent, changing, prev, current;
-    if (key == null) return this;
+    if (key === null || key === undefined) return this;
 
     // Handle both `"key", value` and `{key: value}` -style arguments.
     if (typeof key === 'object') {
@@ -133,7 +134,7 @@ _.extend(Backbone.Model.prototype, {
       _.set((attrs = {}), key, val);
     }
 
-    options || (options = {});
+    options = optinos || {};
 
     // Run validation.
     if (!this._validate(attrs, options)) return false;
@@ -150,7 +151,8 @@ _.extend(Backbone.Model.prototype, {
       this.changed = {};
     }
 
-    current = this.attributes, prev = this._previousAttributes;
+    current = this.attributes;
+    prev = this._previousAttributes;
 
     // Check for changes of `id`.
     if (this.idAttribute in attrs) this.id = attrs[this.idAttribute];
@@ -243,8 +245,8 @@ Airbrite = (function(){
         }
       });
     } else {
-      throw new Error('Please provide a supported gateway configuration.'
-                     +' Currently supported payment gateways: stripe');
+      throw new Error('Please provide a supported gateway configuration.'+
+                     ' Currently supported payment gateways: stripe');
     }
   };
 
@@ -477,10 +479,11 @@ Airbrite = (function(module) {
     // Workaround to prevent sending to server when validation fails
     // even if the user doesn't provide a parameter object as argument
     save: function() {
-      if(arguments.length == 0) {
-        arguments = [{}];
+      var args = arguments;
+      if(args.length === 0) {
+        args = [{}];
       }
-      return Backbone.Model.prototype.save.apply(this, arguments);
+      return Backbone.Model.prototype.save.apply(this, args);
     }
   });
 

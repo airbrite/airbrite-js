@@ -3,7 +3,10 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
-      files: ['src/*.js']
+      files: ['src/*.js'],
+      options: {
+        '-W030': true
+      }
     },
     mocha: {
       tests: {
