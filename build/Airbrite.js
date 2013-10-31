@@ -243,8 +243,8 @@ Airbrite = (function(){
         }
       });
     } else {
-      throw new Error('Please provide a supported gateway configuration.'
-                     +' Currently supported payment gateways: stripe');
+      throw new Error('Please provide a supported gateway configuration.'+
+                     ' Currently supported payment gateways: stripe');
     }
   };
 
@@ -423,7 +423,7 @@ Airbrite = (function(module) {
     /**
      * High-level API for adding a payment
      */
-    addPayment: function(params) {
+    addPayment: function(params, callback) {
       params = params || {};
       module._checkParams(['number','exp_month','exp_year','amount','currency'], params);
       var payments = this.get('payments');
@@ -435,20 +435,32 @@ Airbrite = (function(module) {
 
       // If the user has configured Stripe payment gateway through Airbrite.setPaymentToken,
       // load the Stripe library and tokenize the card automatically for her
+      var _this = this;
       if(module._getPaymentGateway() == 'stripe') {
-        var _this = this;
         Stripe.createToken(params, function(status, response) {
           if(response.error) {
-            _this.trigger('error', _this, 'Error tokenizing card: ' + response.error.message, params);
+            var msg =  'Error tokenizing card: ' + response.error.message;
+            _this.trigger('error', _this, msg, params);
+            if($.isFunction(callback)) {
+              callback('error', msg);
+            }
           } else {
             payment.card_token = response.id;
             _this.trigger('change');
             _this.trigger('complete');
+            if($.isFunction(callback)) {
+              callback('success');
+            }
           }
         });
       } else {
-        // If no gateway token has been confiured ... what to do? For now, just saving the card
-        // information in the order as is
+        // If no gateway token has been confiured ... what to do? For now
+        // generate an error message indicating the missing configuration
+        var msg = 'No payment gateway configured. Use: Airbrite.setPaymentToken()';
+        if($.isFunction(callback)) {
+          _this.trigger('error', _this, msg);
+          callback('error', msg);
+        }
       }
     },
 
@@ -470,17 +482,45 @@ Airbrite = (function(module) {
      * Helper method, equivalent to save but maybe more intuitive for
      * SDK users
      */
-    submit: function() {
-      return this.save({});
+    submit: function(callback) {
+      var options = {};
+      if($.isFunction(callback)) {
+        options.success = function(model, response, options) {
+          callback('success');
+        };
+        options.error = function(model, xhr, options) {
+          // TODO: Be more specific about the error occurred
+          var msg = 'Error submitting order';
+          // A validation error arrives here with the return value of the
+          // validate method in xhr
+          if(typeof(xhr) == 'string') {
+            msg += ': ' + xhr;
+          }
+          // Otherwise it was a network error
+          if(typeof(xhr) == "object") {
+            // Try to retrieve the message text from the server, if there is one
+            try {
+              var resp = JSON.parse(xhr.responseText)
+              msg += ': ' + resp.meta.error_message;
+            // Or fall back to whatever comes in the responseText filed if we can't
+            } catch(e) {
+              msg += ': ' + xhr.responseText;
+            }
+          }
+          callback('error', msg);
+        };
+      }
+      return this.save({}, options);
     },
 
     // Workaround to prevent sending to server when validation fails
     // even if the user doesn't provide a parameter object as argument
     save: function() {
-      if(arguments.length == 0) {
-        arguments = [{}];
+      var args = arguments;
+      if(args.length === 0) {
+        args = [{}];
       }
-      return Backbone.Model.prototype.save.apply(this, arguments);
+      return Backbone.Model.prototype.save.apply(this, args);
     }
   });
 
