@@ -490,7 +490,24 @@ Airbrite = (function(module) {
         };
         options.error = function(model, xhr, options) {
           // TODO: Be more specific about the error occurred
-          callback('error', 'Error submitting order');
+          var msg = 'Error submitting order';
+          // A validation error arrives here with the return value of the
+          // validate method in xhr
+          if(typeof(xhr) == 'string') {
+            msg += ': ' + xhr;
+          }
+          // Otherwise it was a network error
+          if(typeof(xhr) == "object") {
+            // Try to retrieve the message text from the server, if there is one
+            try {
+              var resp = JSON.parse(xhr.responseText)
+              msg += ': ' + resp.meta.error_message;
+            // Or fall back to whatever comes in the responseText filed if we can't
+            } catch(e) {
+              msg += ': ' + xhr.responseText;
+            }
+          }
+          callback('error', msg);
         };
       }
       return this.save({}, options);
