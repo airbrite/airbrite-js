@@ -70,25 +70,33 @@ under the covers for you:
       number: ‘4242424242424242’,
       cvc: ‘892’,
       exp_month: ‘11’,
-      exp_year: ‘16’
-    });
+      exp_year: ‘16’,
+      amount: 123400,
+      currency: 'usd'
+    }, responseHandler);
 ```
 
-You will know that tokenization is ready by listening to the 'complete'
-event:
+The second argument is an optionalcallback function that will be
+called on success or error, as follows:
 
 ```
-    myOrder.on('complete', function() {
-      console.log('payment token ready: ' +
-        myOrder.get('payments[0].card_token'));
-    });
+    function responseHandler(response, message) {
+      if(response == 'error') {
+        $('#status-div').val('Error adding payment information: ' + message);
+      } else {
+        $('#status-div').val('Payment information successfully added');
+      }
+    }
 ```
 
 Finally, you submit the order simply by saving it into our backend:
 
 ```
-    myOrder.save();
+    myOrder.submit(responseHandler);
 ```
+
+You can optionally get notified of success or failure using a callback
+function with the same signature described above.
 
 ## Retrieving product information
 
@@ -119,6 +127,14 @@ signal different circumsntances you want to be aware about, such as:
       // Refresh UI to new product property value
     });
 ```
+
+ - Credit card tokenization complete:
+
+```
+    myProduct.on('tokenized', function(model) {
+      // Airbrite.js has a payment gateway token ready
+    });
+``` 
 
 We encourage you to check the [Backbone.js Catalog of Built-in
 Events](http://backbonejs.org/#Events-catalog) for additional

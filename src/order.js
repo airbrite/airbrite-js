@@ -109,7 +109,7 @@ Airbrite = (function(module) {
           } else {
             payment.card_token = response.id;
             _this.trigger('change');
-            _this.trigger('complete');
+            _this.trigger('tokenized');
             if($.isFunction(callback)) {
               callback('success');
             }
