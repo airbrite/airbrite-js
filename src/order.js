@@ -162,7 +162,7 @@ Airbrite = (function(module) {
           if(typeof(xhr) == "object") {
             // Try to retrieve the message text from the server, if there is one
             try {
-              var resp = JSON.parse(xhr.responseText)
+              var resp = JSON.parse(xhr.responseText);
               msg += ': ' + resp.meta.error_message;
             // Or fall back to whatever comes in the responseText filed if we can't
             } catch(e) {

@@ -14,14 +14,15 @@ _.extend(_, {
       }
       var val = obj[key];
 
+      var obj2;
       if(!_.isEmpty(val) && _.isArray(val)) {
         //Recursion for embedded objects
-        var obj2 = _.flattenObject(val);
+        obj2 = _.flattenObject(val);
 
         ret[key] = obj2;
       } else if (!_.isEmpty(val) && _.get(val, "constructor") === Object) {
         //Recursion for embedded objects
-        var obj2 = _.flattenObject(val);
+        obj2 = _.flattenObject(val);
 
         for (var key2 in obj2) {
           var val2 = obj2[key2];
@@ -123,7 +124,7 @@ _.extend(Backbone.Model.prototype, {
   },
   set: function(key, val, options) {
     var attr, attrs, unset, changes, silent, changing, prev, current;
-    if (key == null) return this;
+    if (key === null || key === undefined) return this;
 
     // Handle both `"key", value` and `{key: value}` -style arguments.
     if (typeof key === 'object') {
@@ -133,7 +134,7 @@ _.extend(Backbone.Model.prototype, {
       _.set((attrs = {}), key, val);
     }
 
-    options || (options = {});
+    options = optinos || {};
 
     // Run validation.
     if (!this._validate(attrs, options)) return false;
@@ -447,7 +448,7 @@ Airbrite = (function(module) {
           } else {
             payment.card_token = response.id;
             _this.trigger('change');
-            _this.trigger('complete');
+            _this.trigger('tokenized');
             if($.isFunction(callback)) {
               callback('success');
             }
@@ -500,7 +501,7 @@ Airbrite = (function(module) {
           if(typeof(xhr) == "object") {
             // Try to retrieve the message text from the server, if there is one
             try {
-              var resp = JSON.parse(xhr.responseText)
+              var resp = JSON.parse(xhr.responseText);
               msg += ': ' + resp.meta.error_message;
             // Or fall back to whatever comes in the responseText filed if we can't
             } catch(e) {

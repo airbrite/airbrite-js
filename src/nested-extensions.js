@@ -14,14 +14,15 @@ _.extend(_, {
       }
       var val = obj[key];
 
+      var obj2;
       if(!_.isEmpty(val) && _.isArray(val)) {
         //Recursion for embedded objects
-        var obj2 = _.flattenObject(val);
+        obj2 = _.flattenObject(val);
 
         ret[key] = obj2;
       } else if (!_.isEmpty(val) && _.get(val, "constructor") === Object) {
         //Recursion for embedded objects
-        var obj2 = _.flattenObject(val);
+        obj2 = _.flattenObject(val);
 
         for (var key2 in obj2) {
           var val2 = obj2[key2];
@@ -123,7 +124,7 @@ _.extend(Backbone.Model.prototype, {
   },
   set: function(key, val, options) {
     var attr, attrs, unset, changes, silent, changing, prev, current;
-    if (key == null) return this;
+    if (key === null || key === undefined) return this;
 
     // Handle both `"key", value` and `{key: value}` -style arguments.
     if (typeof key === 'object') {
@@ -133,7 +134,7 @@ _.extend(Backbone.Model.prototype, {
       _.set((attrs = {}), key, val);
     }
 
-    options || (options = {});
+    options = optinos || {};
 
     // Run validation.
     if (!this._validate(attrs, options)) return false;
