@@ -1,7 +1,7 @@
 /**
  * Airbrite.Product
  */
-Airbrite = (function(module) {
+window.Airbrite = (function(module) {
   module.Product = Backbone.Model.extend({
     idAttribute: '_id',
     urlRoot: module._getBaseUrl() + '/products',
@@ -18,4 +18,4 @@ Airbrite = (function(module) {
   });
 
   return module;
-})(Airbrite);
+})(window.Airbrite || {});

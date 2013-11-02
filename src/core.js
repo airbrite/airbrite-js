@@ -2,9 +2,7 @@
  * Core component
  * SDK configuration, common functions, etc.
  */
-Airbrite = (function(){
-  var module = {};
-
+window.Airbrite = (function(module){
   // Publishable key
   var _key;
 
@@ -116,4 +114,4 @@ Airbrite = (function(){
   };
 
   return module;
-})();
+})(window.Airbrite || {});

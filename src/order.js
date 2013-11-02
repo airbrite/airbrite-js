@@ -1,7 +1,7 @@
 /**
  * Implements Airbrite.Order
  */
-Airbrite = (function(module) {
+window.Airbrite = (function(module) {
   module.Order = Backbone.Model.extend({
     idAttribute: '_id',
     sync: module._syncWithKey,
@@ -187,4 +187,4 @@ Airbrite = (function(module) {
   });
 
   return module;
-})(Airbrite);
+})(window.Airbrite || {});

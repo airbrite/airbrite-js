@@ -3,7 +3,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
-      files: ['src/*.js'],
+      files: ['src/*.js','Gruntfile'],
       options: {
         '-W030': true
       }
@@ -20,12 +20,7 @@ module.exports = function(grunt) {
     },
     concat: {
       dist: {
-        src: [
-          'src/nested-extensions.js',
-          'src/core.js',
-          'src/product.js',
-          'src/order.js'
-        ],
+        src: ['src/**/*.js'],
         dest: 'build/<%= pkg.name %>.js'
       }
     },

@@ -134,7 +134,7 @@ _.extend(Backbone.Model.prototype, {
       _.set((attrs = {}), key, val);
     }
 
-    options = optinos || {};
+    options = options || {};
 
     // Run validation.
     if (!this._validate(attrs, options)) return false;
