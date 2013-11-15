@@ -64,10 +64,10 @@ window.Airbrite = (function(module) {
      */
     removeItem: function(sku_or_product) {
       var sku;
-      if(typeof sku_or_params == 'object') {
-        sku = sku_or_params.sku || (sku_or_params.get && sku_or_params.get('sku'));
+      if(typeof sku_or_product == 'object') {
+        sku = sku_or_product.sku || (sku_or_product.get && sku_or_product.get('sku'));
       } else {
-        sku = sku_or_params;
+        sku = sku_or_product;
       }
       var lineItems = this.get('line_items');
       var lineItem = _.find( lineItems, function(li) { return li.sku == sku; });
