@@ -337,7 +337,7 @@ window.Airbrite = (function(module) {
     /**
      * Adds a product to the Order. If a product
      * is already in the order, it adds the requested quantity
-     * If no quantity is provided, it will add one 
+     * If no quantity is provided, it will add one
      * The product can be specified by sku, or by Airbrite.Product
      * instance:
      *
@@ -349,6 +349,8 @@ window.Airbrite = (function(module) {
       // Decode how parameters were passed
       var sku;
       if(typeof sku_or_params == 'object') {
+        module._checkParams(['sku', 'quantity'], sku_or_params);
+
         sku = sku_or_params.sku || (sku_or_params.get && sku_or_params.get('sku'));
         quantity = quantity || sku_or_params.quantity;
       } else {
@@ -377,10 +379,10 @@ window.Airbrite = (function(module) {
      */
     removeItem: function(sku_or_product) {
       var sku;
-      if(typeof sku_or_params == 'object') {
-        sku = sku_or_params.sku || (sku_or_params.get && sku_or_params.get('sku'));
+      if(typeof sku_or_product == 'object') {
+        sku = sku_or_product.sku || (sku_or_product.get && sku_or_product.get('sku'));
       } else {
-        sku = sku_or_params;
+        sku = sku_or_product;
       }
       var lineItems = this.get('line_items');
       var lineItem = _.find( lineItems, function(li) { return li.sku == sku; });
@@ -402,7 +404,7 @@ window.Airbrite = (function(module) {
      */
     addPayment: function(params, callback) {
       params = params || {};
-      module._checkParams(['number','exp_month','exp_year','amount','currency'], params);
+      module._checkParams(['number','exp_month','exp_year','amount','currency', 'cvc'], params);
       var payments = this.get('payments');
       var payment = {
         amount: params.amount,
