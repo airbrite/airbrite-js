@@ -20,7 +20,7 @@ Airbrite.js will handle tokenizing of the payment information for you:
 
     Airbrite.setPaymentToken({ stripe: {
       publishableKey: 'pk_test_nMd9IihA9sjwaMMeJAyZz7OZ'
-    });
+    }});
 
 ## Quick start: creating an order
 
@@ -134,7 +134,7 @@ signal different circumsntances you want to be aware about, such as:
     myProduct.on('tokenized', function(model) {
       // Airbrite.js has a payment gateway token ready
     });
-``` 
+```
 
 We encourage you to check the [Backbone.js Catalog of Built-in
 Events](http://backbonejs.org/#Events-catalog) for additional
