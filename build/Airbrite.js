@@ -425,6 +425,7 @@ window.Airbrite = (function(module) {
             }
           } else {
             payment.card_token = response.id;
+            payment.gateway = module._getPaymentGateway();
             _this.trigger('change');
             _this.trigger('tokenized');
             if($.isFunction(callback)) {
