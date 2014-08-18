@@ -1,4 +1,4 @@
-Airbrite.js
+Airbrite.js (DEPRECATED)
 ===========
 
 Airbrite.js makes it easy to bring e-commerce logic in the client-side
